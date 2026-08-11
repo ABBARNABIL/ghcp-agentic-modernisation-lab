@@ -1,0 +1,86 @@
+{
+  "$schema": "tasks-schema.json",
+  "description": "Executable tasks for the assessed Java Order Service modernization.",
+  "tasks": [
+    {
+      "type": "security",
+      "id": "001-remediate-direct-cves",
+      "description": "Phase 1, P0: Remediate the assessed Log4Shell and Text4Shell dependencies before runtime or framework upgrades.",
+      "reason": "Addresses assessment findings CVE-2021-44228, CVE-2021-45046, CVE-2021-45105, CVE-2021-44832, and CVE-2022-42889.",
+      "requirements": "Scope: app/Java - Spring Boot/Order Service/pom.xml and the resolved Maven dependency tree. Prerequisites: Maven and a Java 8-compatible environment. Dependencies: none. Required outcome: remove unused explicit log4j-core or retain only at 2.23.1+, upgrade commons-text to 1.12.0, preserve active logging behavior, and eliminate the assessed vulnerable versions. Risk/mitigation: verify the active logger and inspect transitive conflicts before accepting dependency changes. Validation: clean compile, all existing tests, application startup, Order REST smoke tests, dependency:tree, and OSV/NVD-equivalent scan. Traceability: assessment sections 2, 4, 5 Step 1, 6, 7, 8, and 9. Parallelizable: no; this creates the shared security and pom.xml baseline.",
+      "dependencies": [],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "upgrade",
+      "id": "002-upgrade-java-8-to-17",
+      "description": "Phase 2, P1: Upgrade the Order Service compiler and runtime baseline from Java 8 to Java 17 without changing Spring Boot.",
+      "reason": "Addresses assessment BLOCKER-3 and isolates Java runtime failures from the Spring Boot and Jakarta migration.",
+      "requirements": "Scope: Java and Maven compiler settings in app/Java - Spring Boot/Order Service/pom.xml, plus runtime validation of the Order Service. Prerequisites: task 001 accepted and JDK 17 available. Dependency: 001-remediate-direct-cves. Required outcome: Spring Boot 2.7.18 compiles, tests, and starts on Java 17. Risk/mitigation: diagnose reflection or access failures before any framework changes. Validation: clean compile, all four assessed test classes, startup, H2 console, DataSeeder, and GET/POST/status PATCH Order smoke tests under JDK 17. Traceability: assessment BLOCKER-3 and sections 5 Step 2, 6, 7, and 8. Parallelizable: no; this is the Spring Boot 3.5 prerequisite.",
+      "dependencies": [
+        "001-remediate-direct-cves"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "upgrade",
+      "id": "003-upgrade-spring-boot-3-5",
+      "description": "Phase 3A, P1: Upgrade to Spring Boot 3.5.x and migrate the assessed Jakarta and Spring MVC compatibility blockers.",
+      "reason": "Addresses assessment BLOCKER-1, BLOCKER-2, BLOCKER-4, and the EOL Spring Boot/Spring Framework findings.",
+      "requirements": "Scope: Order Service pom.xml; model/Order.java; web/OrderController.java; config/WebConfig.java; runtime validation of application.properties, H2 2.2.x, Hibernate 6, DataSeeder, and Order REST endpoints. Prerequisites: task 002 accepted and JDK 17 available. Dependency: 002-upgrade-java-8-to-17. Required outcome: Spring Boot 3.5.x/Spring 6 with jakarta persistence and validation imports, WebMvcConfigurer, and preserved REST/persistence behavior. Risk/mitigation: constrain namespace changes to assessed APIs and validate H2 schema generation and seed data. Validation: clean compile, tests, no relevant javax imports, startup, H2 console, DataSeeder, and REST smoke tests. Traceability: assessment BLOCKER-1, BLOCKER-2, BLOCKER-4 and sections 2, 5 Step 3, 6, 7, and 8. Parallelizable: no; these changes form one framework gate.",
+      "dependencies": [
+        "002-upgrade-java-8-to-17"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "transform",
+      "id": "004-review-production-configuration",
+      "description": "Phase 3B, P1: Resolve the assessed wildcard CORS and ddl-auto production-readiness decisions without inventing deployment assumptions.",
+      "reason": "Addresses the assessment security-configuration observations and affected-file recommendation for WebConfig.java and application.properties.",
+      "requirements": "Scope: app/Java - Spring Boot/Order Service/src/main/java/com/contoso/demo/orderservice/config/WebConfig.java and src/main/resources/application.properties. Preserve web-allow-others=false and server.address=127.0.0.1. Prerequisites: task 003 accepted. Dependency: 003-upgrade-spring-boot-3-5. Required outcome: wildcard CORS is justified for a public unauthenticated API or replaced with approved origins before production; ddl-auto=update is confined to local in-memory use or production uses validate with an approved Flyway/Liquibase strategy. Risk/mitigation: require explicit dispositions and preserve local behavior until deployment context is approved. Validation: document both decisions; when settings change, run compile/tests/startup, allowed-origin checks, schema initialization, DataSeeder, and REST smoke tests. Traceability: assessment section 4 security observations and sections 5 Step 3, 6, 7, and 8. Parallelizable: no; this is the final Phase 3 gate.",
+      "dependencies": [
+        "003-upgrade-spring-boot-3-5"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "upgrade",
+      "id": "005-upgrade-java-17-to-25",
+      "description": "Phase 4, P1: Move the accepted Spring Boot 3.5 Order Service baseline from Java 17 to the Java 25 target.",
+      "reason": "Completes the requested Java 25 target while keeping the final runtime change isolated from Spring and Jakarta changes.",
+      "requirements": "Scope: Java and Maven compiler settings in app/Java - Spring Boot/Order Service/pom.xml and final runtime validation. Prerequisites: task 004 accepted and JDK 25 available. Dependency: 004-review-production-configuration. Required outcome: the Order Service compiles, tests, and runs on Java 25 with Spring Boot 3.5.x and no optional language-feature refactoring. Risk/mitigation: keep this compiler/runtime-only and investigate new warnings before acceptance. Validation: clean compile, all assessed tests, startup, H2 console, DataSeeder, REST smoke tests, -Xlint:deprecation and -Xlint:unchecked review, and final dependency scan. Traceability: assessment target versions, BLOCKER-3, and sections 5 Step 4, 6, 7, and 8. Parallelizable: no; this is the final target-runtime gate.",
+      "dependencies": [
+        "004-review-production-configuration"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    }
+  ],
+  "metadata": {
+    "planName": "Order Service Java 25 and Spring Boot 3.5",
+    "projectName": "Order Service",
+    "language": "java",
+    "createdAt": "2026-08-11T18:07:00+02:00",
+    "version": "1.0"
+  }
+}
