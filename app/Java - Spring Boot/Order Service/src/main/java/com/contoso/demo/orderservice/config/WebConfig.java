@@ -14,6 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
+                // Wildcard CORS is intentional for this public unauthenticated API.
+                // Before production deployment, replace with approved origins.
                 .allowedOrigins("*")
             .allowedMethods("GET", "POST", "PATCH");
     }
