@@ -2,15 +2,14 @@ package com.contoso.demo.orderservice.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Uses the deprecated WebMvcConfigurerAdapter on purpose so the
- * modernization agent has a deprecated-API migration to perform
- * (WebMvcConfigurerAdapter -> WebMvcConfigurer in Spring 5+).
+ * Implements WebMvcConfigurer (replaces the removed WebMvcConfigurerAdapter
+ * which was deleted in Spring Framework 6 / Spring Boot 3).
  */
 @Configuration
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
