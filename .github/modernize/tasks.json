@@ -46,7 +46,9 @@
         "passBuild": "true",
         "generateNewUnitTests": "false",
         "passUnitTests": "true"
-      }
+      },
+      "status": "done",
+      "summary": "Upgraded org.apache.logging.log4j:log4j-core 2.14.1 -> 2.25.4 and org.apache.commons:commons-text 1.9 -> 1.10.0 in the Order Service pom.xml, resolving all 7 log4j-core CVEs (including the Log4Shell family CVE-2021-44228/45046/45105/44832 plus 2025/2026 TLS/XML advisories) and the Text4Shell CVE-2022-42889. H2 2.1.214 was left unchanged (CVE-2022-45868 patch exists at 2.2.220 but is explicitly out of scope per task requirements: treated as version-aged only, no upgrade forced since no compatibility issue required it). Frontend: upgraded vite ^5.4.11 -> ^8.2.2 (semver-major) and its peer @vitejs/plugin-react ^4.3.4 -> ^6.1.1 in frontend/package.json, resolving all 6 npm audit advisory groups (baseline-browser-mapping, browserslist, esbuild, nanoid, postcss, vite) with zero React version change (react/react-dom confirmed still at 18.3.1; React 18->19 upgrade was not needed and not performed). npm audit before: 6 vulnerable packages / moderate=2,high=4,total=6; after: 0 vulnerable packages / total=0. Documented the vite major-upgrade breaking-change risk in summary.md (no vite.config.js changes required, plugin API surface unaffected). Validation: mvn clean test -> BUILD SUCCESS, Tests run: 20, Failures: 0, Errors: 0, Skipped: 0 (20/20 matching required baseline); frontend npm test -> 4/4 passed; frontend npm run build -> succeeded (20 modules transformed). Re-ran appmod-validate-cves-for-java after fixes: log4j-core and commons-text report zero remaining CVEs; only the explicitly out-of-scope H2 finding remains (no scanner-authentication limitation encountered). Changes committed directly on branch modernize/java-20260909170843 (commit cde8c8a7637cff1a98a0e62a73a741bc859f4784); no source code (.java/.jsx/.js) files were modified, dependency-only remediation with no behavior changes. Full details in .github/modernize/java-upgrade/20260909173554/summary.md."
     },
     {
       "type": "integrationTest",
