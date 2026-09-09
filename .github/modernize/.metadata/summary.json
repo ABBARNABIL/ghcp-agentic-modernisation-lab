@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../skills/create-modernization-plan/summary-schema.json",
+  "planName": "Order Service Java 25 and Spring Boot 4 Modernization",
+  "projectName": "Order Service",
+  "language": "java",
+  "entries": [
+    {
+      "id": "002-setup-behavior-baseline",
+      "type": "setupBaseline",
+      "status": "success",
+      "taskSummary": "Snapshotted 'app/Java - Spring Boot/Order Service' to an isolated temp folder and built the frozen baseline exclusively from that snapshot, independent of any in-flight migration/upgrade tasks. Ran the full backend suite (mvn test) from the snapshot: BUILD SUCCESS, Tests run 20 / Failures 0 / Errors 0 / Skipped 0 across OrderRepositoryTest, OrderServiceTest, OrderServiceUnitTest, and OrderControllerTest. Ran the frontend suite/build from the snapshot: npm test (node --test) 4/4 passed; npm run build succeeded (36 modules transformed). Authored src/test/test-cases/test-cases.md documenting the Order API contract, validation rules, H2 persistence assumptions, CORS/web config, the full backend test inventory, the frontend view-logic contract, and a frozen infra-decision table selecting MOCKED external dependencies for every dependency (H2 kept embedded/in-process; no Azure resource, credential, or connection referenced anywhere, per the no-provisioned-Azure-environment constraint). Added testdata/seeded-orders.json, testdata/sample-requests.json, and testdata/frontend-orders-fixture.json as frozen fixtures. Copied only these frozen artifacts back into the live workspace under src/test/test-cases/ (production source untouched) and committed them on the current branch. The folder is now FROZEN.",
+      "goalStatus": {
+        "totalTestCases": 24,
+        "passed": 24,
+        "failed": 0,
+        "allCasesPassed": true,
+        "testCasesFile": "app/Java - Spring Boot/Order Service/src/test/test-cases/test-cases.md"
+      },
+      "risks": [
+        "The frozen baseline was captured against the pre-upgrade Java 8 / Spring Boot 2.7.18 source snapshot; if the Java 25 / Spring Boot 4 upgrade (task 001) changes observable behavior beyond the frozen contract (e.g. validation error format, enum bind error status), Phase 3 PostMigrationIT tests will surface it as a regression requiring an explicit unfreeze/re-freeze cycle rather than a silent fix.",
+        "No provisioned Azure environment exists for this plan; the infra-decision table freezes every external dependency to a MOCKED/embedded strategy (H2 in-memory), so this baseline cannot detect regressions specific to a real Azure-hosted database or service."
+      ],
+      "followUps": [
+        "When Phase 3 (integrationTest) runs, verify all *PostMigrationIT scenarios against the frozen test-cases.md using only mocked/embedded substitutes, with no Azure credentials required.",
+        "If a future plan provisions real Azure resources, re-run setupBaseline's re-freeze cycle to update the infra-decision table from MOCKED to a live-resource strategy before relying on it for verification."
+      ]
+    }
+  ]
+}

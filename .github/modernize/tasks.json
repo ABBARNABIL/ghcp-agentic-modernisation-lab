@@ -27,7 +27,9 @@
         "passBuild": "true",
         "generateNewUnitTests": "false",
         "passUnitTests": "true"
-      }
+      },
+      "status": "done",
+      "summary": "Snapshotted 'app/Java - Spring Boot/Order Service' to an isolated temp folder and built the frozen baseline exclusively from that snapshot. Ran the full backend suite (mvn test: BUILD SUCCESS, Tests run: 20, Failures: 0, Errors: 0, Skipped: 0 across OrderRepositoryTest, OrderServiceTest, OrderServiceUnitTest, OrderControllerTest) and the frontend suite/build (npm test: 4/4 passed via node --test; npm run build: succeeded, 36 modules transformed) from the snapshot. Authored src/test/test-cases/test-cases.md documenting the Order API contract, validation rules, H2 persistence assumptions (IDENTITY ids, @PrePersist createdAt, STRING-mapped status enum, DataSeeder seed rows), CORS/web config, the full backend test inventory, the frontend view-logic contract, and a frozen infra-decision table selecting MOCKED external dependencies for every dependency (H2 kept as embedded/in-process; no Azure resource, credential, or connection referenced or attempted anywhere in the baseline, per the no-provisioned-Azure-environment constraint). Added testdata/seeded-orders.json, testdata/sample-requests.json, and testdata/frontend-orders-fixture.json as frozen fixtures referenced by the spec. Copied only these frozen artifacts back into the live workspace under src/test/test-cases/ (production source untouched) and committed them on the current branch. This folder is now FROZEN."
     },
     {
       "type": "security",
