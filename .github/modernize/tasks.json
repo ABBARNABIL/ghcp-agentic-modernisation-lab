@@ -13,7 +13,9 @@
         "passBuild": "true",
         "generateNewUnitTests": "false",
         "passUnitTests": "true"
-      }
+      },
+      "status": "done",
+      "summary": "Upgraded the Order Service backend from Java 8 / Spring Boot 2.7.18 to Java 25 / Spring Boot 4.1.1, passing through a Spring Boot 3.5.16 / Java 21 intermediate hop. Migrated all javax.persistence and javax.validation (including javax.validation.Valid) imports to jakarta.* in Order.java and OrderController.java. Replaced the deprecated WebMvcConfigurerAdapter with WebMvcConfigurer in WebConfig.java, keeping the /api/** CORS mapping, permissive origin (\"*\"), and permitted methods (GET, POST, PATCH) byte-for-byte unchanged. Updated pom.xml (spring-boot-starter-parent, java.version/compiler source-target, spring-boot-starter-web -> spring-boot-starter-webmvc) and added spring-boot-starter-webmvc-test / spring-boot-starter-data-jpa-test to satisfy Spring Boot 4's test-module modularization; migrated OrderControllerTest.java from @MockBean to @MockitoBean (MockBean/SpyBean removed in Spring Boot 4.0) and fixed @WebMvcTest/@DataJpaTest import package relocations. Validated with mvn clean test-compile, mvn clean test, and mvn clean package using an actual installed JDK 25.0.2 distribution (not JDK 26) and Maven 3.9.16: BUILD SUCCESS, 20/20 backend tests passing (100%, matches the pre-migration baseline of 20/20), runnable JAR produced. The frozen pre-migration baseline folder src/test/test-cases/ was not modified. A CVE scan restricted to the dependencies actually managed by this upgrade (spring-boot-starter-webmvc, spring-boot-starter-data-jpa, spring-boot-starter-validation, hibernate-core, h2) found no new vulnerabilities; the pre-existing intentionally-pinned vulnerable log4j-core:2.14.1 and commons-text:1.9 were left untouched as they are explicitly in scope for the separate dependent task 003-remediate-dependency-cves. README.md tech-stack/prerequisites updated to reflect Java 25 / Spring Boot 4.1.1. Final committed state: Java 25 with Spring Boot 4.1.1 on branch modernize/java-20260909170843."
     },
     {
       "type": "setupBaseline",

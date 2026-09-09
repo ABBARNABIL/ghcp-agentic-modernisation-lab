@@ -103,7 +103,7 @@
     - Result: ✅ BUILD SUCCESS — packaged JAR `target/order-service-1.0.0.jar` (56.8 MB) produced; Tests: 20/20 passed (100%, matches baseline of 20/20 from Step 2) — OrderRepositoryTest 4, OrderServiceTest 1, OrderServiceUnitTest 6, OrderControllerTest 9
     - Notes: Frozen baseline folder `src/test/test-cases/` was not modified. CVE scan (`#appmod-validate-cves-for-java`) run against the direct/BOM-managed dependencies actually touched by this upgrade (spring-boot-starter-webmvc, spring-boot-starter-data-jpa, spring-boot-starter-validation @4.1.1, hibernate-core@7.4.5.Final, h2@2.4.240): **no CVEs reported** for any of these — confirms the Java 25/Spring Boot 4.1.1 upgrade itself introduced no new vulnerabilities. The scan does flag `log4j-core:2.14.1` (7 CVEs, incl. Log4Shell) and `commons-text:1.9` (1 CVE) — these are the intentionally-pinned demo vulnerabilities explicitly reserved for the separate dependent task `003-remediate-dependency-cves` per this task's scope; left untouched here as planned.
   - **Deferred Work**: `log4j-core`/`commons-text` CVE remediation intentionally deferred to task `003-remediate-dependency-cves` (out of scope for this task per delegation instructions).
-  - **Commit**: (pending)
+  - **Commit**: d461163 - Step 5: Final Validation - Compile: SUCCESS, Tests: 20/20 passed, Package: SUCCESS
 
 ---
 
