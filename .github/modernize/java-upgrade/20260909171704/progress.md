@@ -62,24 +62,29 @@
     - Result: ✅ Compilation SUCCESS | ✅ Tests: 20/20 passed (OrderRepositoryTest 4, OrderServiceTest 1, OrderServiceUnitTest 6, OrderControllerTest 9)
     - Notes: No deprecation warnings observed for WebMvcConfigurer/jakarta changes.
   - **Deferred Work**: None
-  - **Commit**: (pending)
+  - **Commit**: 6067b59 - Step 3: Upgrade to Spring Boot 3.5.16 / Java 21 - Compile: SUCCESS, Tests: 20/20 passed
 
 - **Step 4: Upgrade to Spring Boot 4.1.1 / Java 25 — final target**
-  - **Status**: 🔘 Not Started
+  - **Status**: ✅ Completed
   - **Changes Made**:
+    - pom.xml: spring-boot-starter-parent 3.5.16→4.1.1
+    - pom.xml: java.version/maven.compiler.source/target 21→25; maven-compiler-plugin source/target 21→25
+    - pom.xml: spring-boot-starter-web→spring-boot-starter-webmvc; added spring-boot-starter-webmvc-test and spring-boot-starter-data-jpa-test (test scope, required — SB4 modularized @WebMvcTest/@DataJpaTest into dedicated test modules)
+    - OrderControllerTest.java: @MockBean→@MockitoBean (org.springframework.test.context.bean.override.mockito.MockitoBean); import package fix for @WebMvcTest (org.springframework.boot.webmvc.test.autoconfigure)
+    - OrderRepositoryTest.java: import package fix for @DataJpaTest (org.springframework.boot.data.jpa.test.autoconfigure)
   - **Review Code Changes**:
-    - Sufficiency:
-    - Necessity:
-      - Functional Behavior:
-      - Security Controls:
+    - Sufficiency: ✅ All required changes present. Discovered and resolved 2 additional real compile errors (test-module package relocations for @WebMvcTest/@DataJpaTest) not fully anticipated in the plan text but flagged as a risk; resolved per the documented mitigation (added the dedicated test starters) plus the necessary import-package updates.
+    - Necessity: ✅ All changes necessary — verified via actual compiler errors, no speculative changes made
+      - Functional Behavior: ✅ Preserved — no endpoint, validation, or persistence logic changed; only test annotation/import relocations and one starter rename
+      - Security Controls: ✅ Preserved — no security-relevant change (CORS untouched in this step)
   - **Verification**:
-    - Command:
-    - JDK:
-    - Build tool:
-    - Result:
-    - Notes:
-  - **Deferred Work**:
-  - **Commit**:
+    - Command: `mvn clean test-compile -q` then `mvn clean test -q`
+    - JDK: `C:\Users\nabilabbar\AppData\Local\jdks\jdk-25.0.2`
+    - Build tool: `C:\Program Files\apache-maven-3.9.16\bin\mvn.cmd`
+    - Result: ✅ Compilation SUCCESS | ✅ Tests: 20/20 passed (OrderRepositoryTest 4, OrderServiceTest 1, OrderServiceUnitTest 6, OrderControllerTest 9)
+    - Notes: Actual JDK 25.0.2 distribution used (not JDK 26), per requirement.
+  - **Deferred Work**: None
+  - **Commit**: (pending)
 
 - **Step 5: Final Validation**
   - **Status**: 🔘 Not Started
