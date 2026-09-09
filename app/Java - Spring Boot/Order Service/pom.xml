@@ -72,6 +72,14 @@
             <artifactId>spring-boot-starter-data-jpa-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Provides org.springframework.boot.restclient.RestTemplateBuilder, reflectively
+             required by TestRestTemplateTestAutoConfiguration when a *PostMigrationIT test
+             uses TestRestTemplate against a random-port @SpringBootTest context. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -96,6 +104,21 @@
                     <source>25</source>
                     <target>25</target>
                 </configuration>
+            </plugin>
+            <!-- Runs the Phase 3 *PostMigrationIT tests (added under src/test/java) during
+                 the integration-test/verify phases, separately from the *Test unit/slice
+                 tests already run by Surefire during the test phase. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
