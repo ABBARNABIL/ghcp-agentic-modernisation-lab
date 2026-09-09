@@ -1,0 +1,67 @@
+{
+  "_comment": "Request/response fixtures captured from the frozen backend test suite (OrderControllerTest, OrderServiceUnitTest, OrderRepositoryTest) prior to modernization.",
+  "createOrder": {
+    "valid": {
+      "request": { "customer": "dave", "amount": 15.00 },
+      "expectedStatus": 201,
+      "expectedResponseFields": { "customer": "dave", "status": "PENDING" }
+    },
+    "invalidEmptyBody": {
+      "request": {},
+      "expectedStatus": 400
+    },
+    "invalidBlankCustomerAndNonPositiveAmount": {
+      "request": { "customer": "   ", "amount": 0 },
+      "expectedStatus": 400
+    }
+  },
+  "getById": {
+    "missing": {
+      "id": 99,
+      "expectedStatus": 404
+    }
+  },
+  "customerTotal": {
+    "alice": {
+      "expectedBody": "200.50",
+      "expectedStatus": 200
+    }
+  },
+  "updateStatus": {
+    "valid": {
+      "id": 4,
+      "status": "PROCESSING",
+      "expectedStatus": 200,
+      "expectedResponseFields": { "status": "PROCESSING" }
+    },
+    "missingOrder": {
+      "id": 99,
+      "status": "COMPLETED",
+      "expectedStatus": 404
+    },
+    "unknownStatusValue": {
+      "id": 1,
+      "status": "UNKNOWN",
+      "expectedStatus": 400
+    }
+  },
+  "listOrders": {
+    "expectedStatus": 200,
+    "sample": [
+      { "customer": "alice", "amount": 120.50 },
+      { "customer": "bob", "amount": 42.99 }
+    ]
+  },
+  "validationRules": {
+    "customer": "must not be blank (@NotBlank)",
+    "amount": "must not be null and must be >= 0.01 (@NotNull @DecimalMin(\"0.01\"))",
+    "status": "must be one of PENDING, PROCESSING, COMPLETED (enum bind failure -> 400)"
+  },
+  "persistenceAssumptions": {
+    "database": "H2 in-memory (jdbc:h2:mem:orders;DB_CLOSE_DELAY=-1)",
+    "ddlAuto": "update",
+    "idGeneration": "IDENTITY",
+    "createdAt": "populated automatically via @PrePersist when not supplied by the caller",
+    "defaultStatusOnCreate": "PENDING regardless of caller-supplied status field"
+  }
+}

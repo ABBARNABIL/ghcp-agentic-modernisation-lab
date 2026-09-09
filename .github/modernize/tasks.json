@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Executable Java 25 and Spring Boot 4 modernization tasks for the Order Service.",
+  "tasks": [
+    {
+      "type": "upgrade",
+      "id": "001-upgrade-java25-spring-boot4",
+      "description": "Upgrade the Order Service backend to the Java 25 and Spring Boot 4.x target while preserving its order API behavior.",
+      "reason": "Addresses assessment issues: Java 8 end-of-life baseline, Spring Boot 2.7.18 end of OSS support, javax-to-jakarta blocker, and deprecated WebMvcConfigurerAdapter.",
+      "requirements": "Scope: app/Java - Spring Boot/Order Service backend only. Upgrade Java, Spring Boot, and the managed framework stack to the Spring Boot 4.x / Java 25-compatible target. Migrate all identified javax.persistence, javax.validation, and javax.validation.Valid imports to Jakarta APIs. Replace the deprecated WebMvcConfigurerAdapter configuration while retaining the existing /api/** CORS route coverage and permitted methods. Preserve the existing REST endpoints, validation semantics, H2-backed persistence behavior, and test behavior. Risk: Spring Boot 4 / Hibernate changes can alter JPA and validation behavior; the current permissive CORS origin must not be broadened. Validation: run the complete Maven test suite and package build using an actual JDK 25 installation, and confirm the existing API tests remain green.",
+      "dependencies": [],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "setupBaseline",
+      "id": "002-setup-behavior-baseline",
+      "description": "Capture the frozen Order Service behavior and external-dependency test strategy before modernization verification.",
+      "reason": "Provides a stable regression specification for the requested post-migration integration verification.",
+      "requirements": "Scope: app/Java - Spring Boot/Order Service source snapshot and existing backend/frontend test behavior. Capture the order API scenarios, H2 persistence assumptions, validation outcomes, and frontend build/test expectations. Freeze an infra-decision table selecting mocked external dependencies because this plan has no provisioned Azure environment. Risk: an incomplete baseline can conceal a behavior regression. Validation: baseline artifacts document all currently exercised backend tests and frontend test/build commands and identify the mock strategy for every external dependency.",
+      "dependencies": [],
+      "snapshotFolder": "app/Java - Spring Boot/Order Service",
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "security",
+      "id": "003-remediate-dependency-cves",
+      "description": "Remediate confirmed and version-correlated dependency vulnerabilities without changing Order Service behavior.",
+      "reason": "Addresses assessment issues: Log4Shell-related Log4j Core 2.14.1, Text4Shell-related Commons Text 1.9, and six npm audit advisories in frontend build tooling.",
+      "requirements": "Scope: Order Service Maven dependencies and frontend package manifest/lockfile only. Upgrade Log4j Core and Commons Text to minimum patched stable versions, and remediate npm audit findings including Vite/esbuild and transitive browser tooling. Document breaking-change risk when a required fix is semver-major, particularly the Vite major upgrade. Do not include the separately deferred React 18 to 19 upgrade unless it is strictly required by the security fix. Treat H2 2.1.214 as version-aged rather than CVE-confirmed. Risk: dependency upgrades can change build tooling or runtime behavior; Java scanner confirmation requires credentials or an NVD API key. Validation: complete the Maven build and test suite, frontend npm test and build, rerun npm audit, and retain the final Java scanner result or explicitly document scanner-authentication limitations.",
+      "dependencies": [
+        "001-upgrade-java25-spring-boot4"
+      ],
+      "successCriteria": {
+        "passBuild": "true",
+        "generateNewUnitTests": "false",
+        "passUnitTests": "true"
+      }
+    },
+    {
+      "type": "integrationTest",
+      "id": "004-integrationTest",
+      "description": "Build integration tests for migrated Azure services and run post-migration verification",
+      "reason": "Confirms the upgraded service preserves observable behavior using the baseline's mocked-dependency strategy; no Azure service is provisioned in this code-only plan.",
+      "requirements": "Scope: migrated Order Service backend, H2 test configuration, and frontend verification workflow. Implement and run post-migration integration verification from the frozen baseline using mocked dependencies; do not require Azure credentials or resource identifiers. Cover the existing order API paths, validation behavior, persistence interactions, and the frontend test/build workflow affected by dependency remediation. Risk: mock-only verification cannot establish production Azure connectivity, which is out of scope. Validation: all frozen backend and frontend scenarios pass on the Java 25 / Spring Boot 4.x target, with any intentional behavior difference documented and accepted.",
+      "dependencies": [
+        "001-upgrade-java25-spring-boot4",
+        "002-setup-behavior-baseline",
+        "003-remediate-dependency-cves"
+      ]
+    }
+  ],
+  "metadata": {
+    "planName": "Order Service Java 25 and Spring Boot 4 Modernization",
+    "projectName": "Order Service",
+    "language": "java",
+    "createdAt": "2026-09-09T18:35:56.598+02:00",
+    "version": "1.0"
+  }
+}

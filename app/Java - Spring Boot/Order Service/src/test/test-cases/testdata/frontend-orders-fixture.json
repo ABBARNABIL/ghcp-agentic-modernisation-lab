@@ -1,0 +1,46 @@
+{
+  "_comment": "Fixture used by frontend/src/orderView.test.js (Node built-in test runner) to validate search, filter, sort, and summary logic in frontend/src/orderView.js.",
+  "orders": [
+    {
+      "id": 1,
+      "customer": "Alice",
+      "amount": 120.5,
+      "status": "PENDING",
+      "createdAt": "2026-08-01T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "customer": "Bob",
+      "amount": 42.99,
+      "status": "COMPLETED",
+      "createdAt": "2026-08-03T10:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "customer": "alice cooper",
+      "amount": 80,
+      "status": "PROCESSING",
+      "createdAt": "2026-08-02T10:00:00.000Z"
+    }
+  ],
+  "expected": {
+    "searchAliCaseInsensitive": [3, 1],
+    "searchExactId2": [2],
+    "statusFilterPending": [1],
+    "sortOldest": [1, 3, 2],
+    "sortAmountHigh": [1, 3, 2],
+    "sortAmountLow": [2, 3, 1],
+    "summaryAllThree": {
+      "totalOrders": 3,
+      "activeOrders": 2,
+      "totalValue": 243.49,
+      "averageValue": 81.16333333333334
+    },
+    "summaryEmpty": {
+      "totalOrders": 0,
+      "activeOrders": 0,
+      "totalValue": 0,
+      "averageValue": 0
+    }
+  }
+}
