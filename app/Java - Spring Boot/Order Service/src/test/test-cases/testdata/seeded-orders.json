@@ -1,0 +1,27 @@
+{
+  "_comment": "Rows inserted by com.contoso.demo.orderservice.config.DataSeeder on application startup (in insertion order). id values are illustrative: H2 assigns IDENTITY ids 1..3 on a freshly started, empty in-memory database.",
+  "seededOrders": [
+    {
+      "id": 1,
+      "customer": "alice",
+      "amount": 120.50,
+      "status": "PENDING"
+    },
+    {
+      "id": 2,
+      "customer": "alice",
+      "amount": 80.00,
+      "status": "PROCESSING"
+    },
+    {
+      "id": 3,
+      "customer": "bob",
+      "amount": 42.99,
+      "status": "COMPLETED"
+    }
+  ],
+  "derived": {
+    "aliceTotal": 200.50,
+    "bobTotal": 42.99
+  }
+}

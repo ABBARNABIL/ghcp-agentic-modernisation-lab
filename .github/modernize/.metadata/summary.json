@@ -1,0 +1,51 @@
+{
+  "$schema": "../../../skills/create-modernization-plan/summary-schema.json",
+  "planName": "Order Service Java 25 and Spring Boot 4 Modernization",
+  "projectName": "Order Service",
+  "language": "java",
+  "entries": [
+    {
+      "id": "002-setup-behavior-baseline",
+      "type": "setupBaseline",
+      "status": "success",
+      "taskSummary": "Snapshotted 'app/Java - Spring Boot/Order Service' to an isolated temp folder and built the frozen baseline exclusively from that snapshot, independent of any in-flight migration/upgrade tasks. Ran the full backend suite (mvn test) from the snapshot: BUILD SUCCESS, Tests run 20 / Failures 0 / Errors 0 / Skipped 0 across OrderRepositoryTest, OrderServiceTest, OrderServiceUnitTest, and OrderControllerTest. Ran the frontend suite/build from the snapshot: npm test (node --test) 4/4 passed; npm run build succeeded (36 modules transformed). Authored src/test/test-cases/test-cases.md documenting the Order API contract, validation rules, H2 persistence assumptions, CORS/web config, the full backend test inventory, the frontend view-logic contract, and a frozen infra-decision table selecting MOCKED external dependencies for every dependency (H2 kept embedded/in-process; no Azure resource, credential, or connection referenced anywhere, per the no-provisioned-Azure-environment constraint). Added testdata/seeded-orders.json, testdata/sample-requests.json, and testdata/frontend-orders-fixture.json as frozen fixtures. Copied only these frozen artifacts back into the live workspace under src/test/test-cases/ (production source untouched) and committed them on the current branch. The folder is now FROZEN.",
+      "goalStatus": {
+        "totalTestCases": 24,
+        "passed": 24,
+        "failed": 0,
+        "allCasesPassed": true,
+        "testCasesFile": "app/Java - Spring Boot/Order Service/src/test/test-cases/test-cases.md"
+      },
+      "risks": [
+        "The frozen baseline was captured against the pre-upgrade Java 8 / Spring Boot 2.7.18 source snapshot; if the Java 25 / Spring Boot 4 upgrade (task 001) changes observable behavior beyond the frozen contract (e.g. validation error format, enum bind error status), Phase 3 PostMigrationIT tests will surface it as a regression requiring an explicit unfreeze/re-freeze cycle rather than a silent fix.",
+        "No provisioned Azure environment exists for this plan; the infra-decision table freezes every external dependency to a MOCKED/embedded strategy (H2 in-memory), so this baseline cannot detect regressions specific to a real Azure-hosted database or service."
+      ],
+      "followUps": [
+        "When Phase 3 (integrationTest) runs, verify all *PostMigrationIT scenarios against the frozen test-cases.md using only mocked/embedded substitutes, with no Azure credentials required.",
+        "If a future plan provisions real Azure resources, re-run setupBaseline's re-freeze cycle to update the infra-decision table from MOCKED to a live-resource strategy before relying on it for verification."
+      ]
+    },
+    {
+      "id": "004-integrationTest",
+      "type": "integrationTest",
+      "status": "success",
+      "taskSummary": "Materialized the FROZEN app/Java - Spring Boot/Order Service/src/test/test-cases/test-cases.md spec as *PostMigrationIT tests against the migrated Java 25 / Spring Boot 4.1.1 implementation and executed them with mocked/embedded dependencies only (no Azure credentials, resources, or connections used or required). Added 3 append-only JUnit 5 IT classes (23 methods): OrderPersistencePostMigrationIT (5, @DataJpaTest, mirrors OrderRepositoryTest), OrderServicePostMigrationIT (7, @SpringBootTest with real repository/H2, mirrors OrderServiceUnitTest+OrderServiceTest, asserts via persisted DB state), OrderApiPostMigrationIT (11, full @SpringBootTest(RANDOM_PORT)+TestRestTemplate, mirrors all 9 OrderControllerTest scenarios plus seeded-row presence and a CORS preflight check). Added maven-failsafe-plugin so *PostMigrationIT classes run via `mvn verify` distinct from the existing Surefire *Test suite; added a test-scoped spring-boot-starter-restclient dependency required for TestRestTemplate under Spring Boot 4's modularized test infrastructure. `mvn clean verify` (JDK 26.0.2, the only non-EOL JDK available on this host) -> BUILD SUCCESS: Surefire 20/20 pre-existing unit tests unchanged and passing, Failsafe 23/23 new *PostMigrationIT tests passing (43/43 backend tests total, non-zero execution evidence, no compile-only/zero-test runs). Frontend: `npm install` -> 0 vulnerabilities; `npm test` -> 4/4 passed (unchanged orderView.js scenarios); `npm run build` (vite 8.2.2) -> succeeded, 20 modules transformed (vs 36 at baseline capture -- an internal Vite 8 bundling optimization detail, not an output-contract change). All 24 frozen scenarios (20 backend + 4 frontend) re-proven passing; zero behavior regressions found. Documented adaptation-only differences: (1) TestRestTemplate relocated to org.springframework.boot.resttestclient and now needs @AutoConfigureTestRestTemplate + spring-boot-starter-restclient; (2) Spring Boot 4 defaults to Jackson 3.x under tools.jackson.* (test-code import change only, no wire-contract change); (3) discovered and worked around (not a regression, pre-existing latent behavior) a named in-memory H2 database (jdbc:h2:mem:orders;DB_CLOSE_DELAY=-1) accumulating DataSeeder rows when multiple full @SpringBootTest context configurations boot in the same test JVM -- tests were designed with dedicated per-test customer names to stay deterministic; production single-startup behavior is unaffected.",
+      "goalStatus": {
+        "totalTestCases": 27,
+        "passed": 27,
+        "failed": 0,
+        "allCasesPassed": true,
+        "testCasesFile": "app/Java - Spring Boot/Order Service/src/test/test-cases/test-cases.md"
+      },
+      "risks": [
+        "This verification is mock-only (embedded H2, no live Azure resource); it cannot detect regressions specific to a real Azure-hosted database, network latency, or managed-service-specific behavior, consistent with the frozen infra-decision table since no Azure environment is provisioned for this plan.",
+        "Verification ran on JDK 26.0.2 rather than the JDK 25.0.2 distribution used in task 001, because JDK 25.0.2 was not installed on this host at verification time; both are Java-25-language-level compatible for this project (source/target 25) and all tests passed, but a future run should confirm on the exact JDK 25.0.2 distribution if strict parity is required.",
+        "A pre-existing (non-migration) fragility in the app's named in-memory H2 database configuration causes DataSeeder to reseed when multiple full @SpringBootTest context configurations share the same test JVM; not a production-impacting issue but worth a future code-level fix (e.g. a per-test-class unique H2 database name or @DirtiesContext) if more full-context IT suites are added later."
+      ],
+      "followUps": [
+        "If a future plan provisions real Azure resources, re-run setupBaseline's re-freeze cycle and add corresponding *PostMigrationIT coverage against the live resource before removing the MOCKED-only constraint.",
+        "Consider isolating the H2 in-memory database name per full-context test class (or adding @DirtiesContext) to remove the latent DataSeeder double-seeding fragility discovered during this verification, independent of any further migration work."
+      ]
+    }
+  ]
+}

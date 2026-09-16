@@ -6,8 +6,8 @@ A small Spring Boot REST API for managing customer orders, paired with a lightwe
 
 | Layer      | Technology                                  |
 | ---------- | ------------------------------------------- |
-| Language   | Java 8                                       |
-| Framework  | Spring Boot 2.7.18 (Web, Data JPA, Validation) |
+| Language   | Java 25                                      |
+| Framework  | Spring Boot 4.1.1 (Web MVC, Data JPA, Validation) |
 | Database   | H2 (in-memory)                               |
 | Build      | Maven                                         |
 | Frontend   | React 18 + Vite 5                            |
@@ -30,7 +30,7 @@ frontend/                   # React + Vite UI
 
 ## Prerequisites
 
-- JDK 17+ and Maven 3.6+ (the build currently targets Java 8 for the initial modernization baseline)
+- JDK 25+ and Maven 3.9+ (the build targets Java 25)
 - Node.js 18+ (for the frontend)
 
 ## Running the Backend
